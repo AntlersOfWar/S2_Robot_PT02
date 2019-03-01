@@ -1,2 +1,2 @@
    text	   data	    bss	    dec	    hex	filename
-  33664	   3424	   5608	  42696	   a6c8	../PT02.elf
+  37092	   3424	   5608	  46124	   b42c	../PT02.elf

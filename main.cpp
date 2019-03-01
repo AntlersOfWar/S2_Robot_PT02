@@ -11,14 +11,18 @@
 #define OFFSET 8.0
 /* TODO: Add more defines possibly for controlled servo rotation. */
 
+// Define red
 float redThresh = 0.7;
+
+// Global bool for orientation swapping
+bool vertical;
 
 /* TODO: Make sure you have the right number of motors/encoders declared. */
 FEHServo main_servo(FEHServo::Servo7);
 FEHServo lever_servo(FEHServo::Servo6);
 
 //P3_6, and P3_7 cannot be used for digital encoders.
-//fl means front-left, br means back-right.
+//fr means front right, bl means back left.
 DigitalEncoder fr_encoder(FEHIO::P0_0);
 DigitalEncoder bl_encoder(FEHIO::P3_0);
 
@@ -26,9 +30,6 @@ FEHMotor fr_motor(FEHMotor::Motor3, 5.0);
 FEHMotor bl_motor(FEHMotor::Motor0, 5.0);
 
 AnalogInputPin cds(FEHIO::P0_4);
-
-// Global bool for orientation swapping
-bool vertical;
 
 int theoreticalCounts(int inches) {
     int counts = (inches * COUNTS_PER_REV) / (2 * PI * WHEEL_RADIUS);
@@ -197,18 +198,19 @@ void turnRight(int percent, int degrees){
 //Allow slower, controlled rotation of the main servo. Increase step for faster rotation
 //Input true if the wheels are vertically aligned with field, false if horizontally aligned
 void swapOrientation(float step) {
-    float posVert = 131.0, posHoriz = 41.0, currentPos;
+    float posVert = 180.0, posHoriz = 70.0, currentPos;
 
     if(vertical){
         // Init servo
         currentPos = posVert;
 
-        fr_motor.SetPercent(-15);
-        bl_motor.SetPercent(-15);
+        fr_motor.SetPercent(-25);
+        bl_motor.SetPercent(-25);
 
         while (currentPos > posHoriz) {
             currentPos = currentPos - step;
             LCD.Clear();
+            LCD.WriteLine("Switching to horizontal...");
             LCD.Write("Current Position: ");
             LCD.WriteLine(currentPos);
             main_servo.SetDegree(currentPos);
@@ -221,12 +223,13 @@ void swapOrientation(float step) {
         //Init servo
         currentPos = posHoriz;
 
-        fr_motor.SetPercent(15);
-        bl_motor.SetPercent(15);
+        fr_motor.SetPercent(25);
+        bl_motor.SetPercent(25);
 
         while (currentPos < posVert) {
             currentPos = currentPos + step;
             LCD.Clear();
+            LCD.WriteLine("Switching to vertical...");
             LCD.Write("Current Position: ");
             LCD.WriteLine(currentPos);
             main_servo.SetDegree(currentPos);
@@ -251,22 +254,24 @@ int main()
     //Starting orientation
     vertical = true;
 
-    move_forward(50, 15);
+    move_forward(50, 5);
     Sleep(2000);
     swapOrientation(2.0);
     Sleep(2000);
     vertical = false;
-    move_forward(50, 15);
+    move_forward(50, 5);
     Sleep(2000);
     swapOrientation(2.0);
     Sleep(2000);
     vertical = true;
-    move_backward(50, 15);
+    move_backward(50, 5);
     Sleep(2000);
     swapOrientation(2.0);
     Sleep(2000);
     vertical = false;
-    move_backward(50, 15);
+    move_backward(50, 5);
+    Sleep(2000);
+    swapOrientation(2.0);
 
     /* CdS cell
     //Initialize the screen
